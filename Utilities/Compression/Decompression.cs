@@ -8,29 +8,37 @@ namespace Utilities
     {
         public static byte[] Execute(byte[] message, CompressionType compressionType)
         {
-            if (compressionType.Equals(CompressionType.Deflate))
+            try
             {
-                using var decompressedStream = new MemoryStream(message);
-                using var deflateStream = new DeflateStream(decompressedStream, CompressionMode.Decompress);
-                using var resultStream = new MemoryStream();
-                deflateStream.CopyTo(resultStream);
+                if (compressionType.Equals(CompressionType.Deflate))
+                {
+                    using var decompressedStream = new MemoryStream(message);
+                    using var deflateStream = new DeflateStream(decompressedStream, CompressionMode.Decompress);
+                    using var resultStream = new MemoryStream();
+                    deflateStream.CopyTo(resultStream);
 
-                var decompressedMessage = resultStream.ToArray();
-                return decompressedMessage;
+                    var decompressedMessage = resultStream.ToArray();
+                    return decompressedMessage;
+                }
+
+                if (compressionType.Equals(CompressionType.GZip))
+                {
+                    using var decompressedStream = new MemoryStream(message);
+                    using var gZipStream = new GZipStream(decompressedStream, CompressionMode.Decompress);
+                    using var resultStream = new MemoryStream();
+                    gZipStream.CopyTo(resultStream);
+
+                    var decompressedMessage = resultStream.ToArray();
+                    return decompressedMessage;
+                }
+
+                return message;
             }
-
-            if (compressionType.Equals(CompressionType.GZip))
+            catch(Exception ex)
             {
-                using var decompressedStream = new MemoryStream(message);
-                using var gZipStream = new GZipStream(decompressedStream, CompressionMode.Decompress);
-                using var resultStream = new MemoryStream();
-                gZipStream.CopyTo(resultStream);
-
-                var decompressedMessage = resultStream.ToArray();
-                return decompressedMessage;
+                Console.WriteLine(ex.Message);
+                return null;
             }
-
-            return message;
         }
     }
 }
